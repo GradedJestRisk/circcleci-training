@@ -68,6 +68,9 @@ jobs:
           paths:
             - ~/.npm
       - run:
+          name: Waiting 30 seconds.. (time to cancel !)
+          command: sleep 30
+      - run:
           name: Run test
           command: npm run test
 
