@@ -17,5 +17,7 @@
   "bugs": {
     "url": "https://github.com/GradedJestRisk/circleci-training/issues"
   },
-  "homepage": "https://github.com/GradedJestRisk/circleci-training#readme"
+  "homepage": "https://github.com/GradedJestRisk/circleci-training#readme",
+  "dependencies": {},
+  "devDependencies": {}
 }

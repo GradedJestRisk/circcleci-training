@@ -23,7 +23,7 @@ version: 2.0
 
 workflows:
   version: 2
-  build-test-and-deploy:
+  test-root-and-api:
     jobs:
       - checkout:
           filters:
@@ -31,33 +31,36 @@ workflows:
               ignore:
                 - master
 
-      - build_and_test:
+      - build_and_test_root:
+          requires:
+            - checkout
+      - build_and_test_api:
           requires:
             - checkout
 
 jobs:
+
   checkout:
     docker:
       - image: circleci/node
-    working_directory: ~/circleci-training
+    working_directory: ~/root
     steps:
       - checkout
       - run:
-          command: |
-            npm ci
+          command:
             rm -rf .git/
       - persist_to_workspace:
-          root: ~/circleci-training
+          root: ~/root
           paths:
             - .
 
-  build_and_test:
+  build_and_test_root:
     docker:
       - image: circleci/node
-    working_directory: ~/circleci-training
+    working_directory: ~/root
     steps:
       - attach_workspace:
-          at: ~/circleci-training
+          at: ~/root
       - run: cat package*.json > cachekey
       - restore_cache:
           keys:
@@ -68,9 +71,26 @@ jobs:
           paths:
             - ~/.npm
       - run:
-          name: Waiting 30 seconds.. (time to cancel !)
-          command: sleep 30
-      - run:
           name: Run test
           command: npm run test
+
+  build_and_test_api:
+    docker:
+      - image: circleci/node
+    working_directory: ~/root/api
+    steps:
+      - attach_workspace:
+          at: ~/root
+      - run: cat package*.json > cachekey
+      - restore_cache:
+          keys:
+            - v7-api-npm-{{ checksum "cachekey" }}
+      - run: npm ci
+      - save_cache:
+          key: v7-api-npm-{{ checksum "cachekey" }}
+          paths:
+            - ~/.npm
+      - run:
+          name: test
+          command: npm test
 
